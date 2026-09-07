@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config/env"
 
 function Register() {
-    const API_KEY = 'http://localhost:8080/auth'
     const [email, setEmail] = useState('')
     const [nome, setNome] = useState('')
     const [senha, setSenha] = useState('')
@@ -15,7 +15,7 @@ function Register() {
             alert("Selecione um tipo de usuário")
             return
         }
-        const response = await fetch(`${API_KEY}/register`, {
+        const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

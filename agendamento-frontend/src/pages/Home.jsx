@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config/env"
 
 function Home() {
-    const API_URL = 'http://localhost:8080'
     const navigate = useNavigate()
     const [nomeUser, setNomeUser] = useState('')
     const [tipoUsuario, setTipoUsuario] = useState('')

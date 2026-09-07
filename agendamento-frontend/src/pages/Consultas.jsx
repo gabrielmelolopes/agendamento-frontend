@@ -1,40 +1,41 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config/env"
 
 function Consultas() {
-    const API_KEY = 'http://localhost:8080/consultas'
     const [idMedico, setIdMedico] = useState(0)
     const [idPaciente, setIdPaciente] = useState(0)
     const [dataHora, setDataHora] = useState('')
     const navigate = useNavigate()
-    function handleConsulta(e) {
+    const [loading, setLoading] = useState(false)
+    async function handleConsulta(e) {
         e.preventDefault()
-
-        fetch(`${API_KEY}`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-                medico: { id: Number(idMedico) },
-                paciente: { id: Number(idPaciente) },
-                dataHora: dataHora
-            })
-        }).then(response => {
-            if (response.ok) {
-                navigate("/home")
-                setIdMedico(0)
-                setIdPaciente(0)
-                setDataHora('')
-                alert("Consulta marcada.")
-                return response.json()
-            } else {
-                return response.json().then(err => {
-                    alert(err.message)
+        setLoading(true)
+        try {
+            const response = await fetch(`${API_URL}/consultas`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    medico: { id: Number(idMedico) },
+                    paciente: { id: Number(idPaciente) },
+                    dataHora: dataHora ? new Date(dataHora).toISOString() : null
                 })
+            })
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message || "Falha ao reailzar consulta")
             }
-        })
+            alert("Consulta marcada.")
+            navigate("/home")
+        } catch (error) {
+            alert(error.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return <div>Consultas
@@ -56,7 +57,9 @@ function Consultas() {
                 value={dataHora}
                 onChange={e => setDataHora(e.target.value)} />
             <br />
-            <button type="submit">Enviar</button>
+            <button type="submit" disabled={loading}>
+                {loading ? "Agendando..." : "Enviar"}
+            </button>
         </form>
     </div>
 }
